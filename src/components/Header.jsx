@@ -12,7 +12,7 @@ const Header = ({ title }) => {
     >
       <Typography
         variant="h3"
-        color={theme.palette.secondary[100]}
+        color={theme.palette.secondary}
         fontWeight="bold"
         sx={{ margin: "50px" }}
       >
