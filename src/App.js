@@ -8,7 +8,7 @@ import { useSelector } from "react-redux";
 import { themeSettings } from "./theme";
 
 import Layout from "./layouts/layout1";
-
+import EventDetails from "./pages/Accueil/EventDetails";
 import Accueil from "./pages/Accueil";
 
 
@@ -28,7 +28,7 @@ function App() {
           <Routes>
           <Route element={<Layout />}>
             <Route path="/" element={<Accueil />} />
-            
+            <Route path="/events/:id" element={<EventDetails />} />
          
           </Route>
           </Routes>

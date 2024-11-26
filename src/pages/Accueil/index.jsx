@@ -75,7 +75,7 @@ const Events = ({
       <CardActions
         sx={{
           display: "flex",
-          justifyContent: "space-between", // Ajout de l'espace entre les éléments
+          justifyContent: "space-between", 
           alignItems: "center",
           padding: "0.75rem",
           borderTop: `1px solid ${theme.palette.divider}`,
@@ -133,7 +133,7 @@ const Accueil = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
-  const eventsPerPage = 20; // Correspond à la taille de page par défaut de l'API
+  const eventsPerPage = 9; 
   const theme = useTheme();
   const isNonMobile = useMediaQuery("(min-width: 1000px)");
 
