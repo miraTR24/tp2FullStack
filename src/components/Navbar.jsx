@@ -31,16 +31,13 @@ import {
 import { useNavigate } from "react-router-dom";
 
 
-const Navbar = ({ user, isSidebarOpen, setIsSidebarOpen }) => {
+const Navbar = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const theme = useTheme();
-  const [anchorEl, setAnchorEl] = useState(null);
   const [anchorEl2, setAnchorEl2] = useState(null);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
-  const [isSubMenuOpen, setIsSubMenuOpen] = useState(false); 
-  const open = Boolean(anchorEl2); 
-  const [openDraw, setOpenDraw] = useState(false);
+
 
   const handleMenuIconClick = () => {
     setIsDrawerOpen(true);
@@ -50,34 +47,6 @@ const Navbar = ({ user, isSidebarOpen, setIsSidebarOpen }) => {
     setIsDrawerOpen(false);
   };
 
-  const handleClick = (event) => {
-    setAnchorEl(event.currentTarget);
-    setIsSubMenuOpen(true); 
-  };
-
-  const handleClose = () => {
-    setIsSubMenuOpen(false); 
-    navigate("/"); 
-  };
-  const handleClick2 = (event) => {
-    setAnchorEl2(event.currentTarget);
-  };
-  const handleClose2 = () => {
-    setAnchorEl2(null);
-  };
-  const handle_Close = () => {
-    setOpenDraw(false);
-  };
-  const openDrawer = () => {
-    setIsSubMenuOpen(false); 
-    setOpenDraw(true);
-  };
-  const navigateFavSpectacles = () => {
-    navigate("/MesFavorisSpectacle"); 
-  };
-  const navigateFavSalles = () => {
-    navigate("/MesFavorisSalle"); 
-  };
 
   const renderDrawerContent = (
     <List>
@@ -101,7 +70,7 @@ const Navbar = ({ user, isSidebarOpen, setIsSidebarOpen }) => {
           <IconButton onClick={handleMenuIconClick} sx={{ display: { md: "none" } }}>
             <MenuIcon sx={{ color: "white" }} />
           </IconButton>
-          <Link to="/Accueil" style={{ textDecoration: 'none' }}>
+          <Link to="/" style={{ textDecoration: 'none' }}>
           <Typography
             fontWeight="bold"
             fontSize="1.5rem"
@@ -114,6 +83,18 @@ const Navbar = ({ user, isSidebarOpen, setIsSidebarOpen }) => {
 
         {/* RIGHT SIDE */}
         <FlexBetween gap="1.5rem">
+                  {/*les différents liens*/ }
+                  <Box textAlign="left"   sx={{ display: { xs: "none", md: "block" },}}>
+          <Link to="/Artistes" style={{ textDecoration: 'none' }}>
+                <Typography
+                  fontWeight="bold"
+                  fontSize="0.85rem"
+                  sx={{ color: "white" }}
+                >
+               Voir liste artistes
+                </Typography>
+                </Link>
+              </Box>
           {/*buttons dark and light*/}
         <IconButton onClick={() => dispatch(setMode())}>
             {theme.palette.mode === "dark" ? (
@@ -122,18 +103,7 @@ const Navbar = ({ user, isSidebarOpen, setIsSidebarOpen }) => {
               <LightModeOutlined sx={{ fontSize: "25px" ,color: "white" }} />
             )}
           </IconButton>
-          {/*les différents liens*/ }
-          <Box textAlign="left"   sx={{ display: { xs: "none", md: "block" },}}>
-          <Link to="/Artistes" style={{ textDecoration: 'none' }}>
-                <Typography
-                  fontWeight="bold"
-                  fontSize="0.85rem"
-                  sx={{ color: "white" }}
-                >
-               Artistes
-                </Typography>
-                </Link>
-              </Box>
+
 
 
             {/* Menu pour le mobile */}

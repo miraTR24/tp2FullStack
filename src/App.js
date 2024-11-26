@@ -10,6 +10,7 @@ import { themeSettings } from "./theme";
 import Layout from "./layouts/layout1";
 import EventDetails from "./pages/Accueil/EventDetails";
 import Accueil from "./pages/Accueil";
+import Artists from "./pages/Artists";
 
 
 
@@ -18,7 +19,6 @@ function App() {
 
   const mode = useSelector((state) => state.mode);
   const theme = useMemo(() => createTheme(themeSettings(mode)), [mode]);
-  const isAuth = Boolean(useSelector((state) => state.token));
 
   return (
     <div className="App">
@@ -28,6 +28,7 @@ function App() {
           <Routes>
           <Route element={<Layout />}>
             <Route path="/" element={<Accueil />} />
+            <Route path="/Artistes" element={<Artists />} />
             <Route path="/events/:id" element={<EventDetails />} />
          
           </Route>
