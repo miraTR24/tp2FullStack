@@ -11,6 +11,7 @@ import Layout from "./layouts/layout1";
 import EventDetails from "./pages/Accueil/EventDetails";
 import Accueil from "./pages/Accueil";
 import Artists from "./pages/Artists";
+import ArtistDetails from "./pages/Artists/ArtistDetails";
 
 
 
@@ -30,6 +31,7 @@ function App() {
             <Route path="/" element={<Accueil />} />
             <Route path="/Artistes" element={<Artists />} />
             <Route path="/events/:id" element={<EventDetails />} />
+            <Route path="/artist/:id" element={<ArtistDetails />} />
          
           </Route>
           </Routes>
