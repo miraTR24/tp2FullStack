@@ -207,6 +207,29 @@ const addArtist = async (artist) => {
   }
 };
 
+const deleteArtist = async (id) => {
+  try {
+    const BASE_URL = process.env.REACT_APP_BACKEND_URL || "http://localhost:8080";
+    const apiUrl = `${BASE_URL}/artists/${id}`;
+
+    const response = await fetch(apiUrl, {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(`HTTP error! Status: ${response.status} - ${errorText}`);
+    }
+
+    return true; // Retourne true si la suppression est réussie
+  } catch (error) {
+    console.error("Erreur lors de la suppression de l'artist :", error.message);
+    throw error;
+  }
+};
 
 export default {
   getArtists,
@@ -216,5 +239,6 @@ export default {
   removeEventFromArtist,
   getAvailableArtistsForEvent,
   addArtistToEvent,
-  addArtist
+  addArtist,
+  deleteArtist
 };

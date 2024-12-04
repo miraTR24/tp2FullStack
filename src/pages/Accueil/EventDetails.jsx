@@ -117,154 +117,180 @@ const EventDetails = () => {
     }
   };
 
+  const handleDeleteEvent = async () => {
+    if (window.confirm("Êtes-vous sûr de vouloir supprimer cet événement ?")) {
+      try {
+        await eventService.deleteEvent(id); // Suppression de l'événement
+        alert("Événement supprimé avec succès !");
+        navigate("/"); // Redirige vers la liste des événements
+      } catch (error) {
+        alert("Une erreur est survenue lors de la suppression de l'événement.");
+      }
+    }
+  };
+  
+
   return (
     <Box m="1.5rem 2.5rem">
-      <Typography variant="h4">Détails de l'Événement</Typography>
-
-      {/* Formulaire avec Formik */}
-      <Formik
-        initialValues={{
-          name: event.name || "",
-          dateDebut: event.dateDebut || "",
-          dateFin: event.dateFin || "",
-        }}
-        validationSchema={validationSchema}
-        onSubmit={handleSubmit}
+    <Typography variant="h4">Détails de l'Événement</Typography>
+  
+    {/* Section pour le bouton Supprimer l'Événement à droite */}
+    <Box mt="2rem" sx={{ display: "flex", justifyContent: "flex-end" }}>
+      <Button
+        variant="contained"
+        color="error"
+        startIcon={<Delete />}
+        onClick={handleDeleteEvent}
       >
-        {({ values, handleChange, handleBlur }) => (
-          <Form>
-            <Box mt="2rem">
-              <Typography variant="h6">Modifier l'Événement</Typography>
-
-              <Field
-                as={TextField}
-                fullWidth
-                margin="normal"
-                label="Nom"
-                name="name"
-                onChange={handleChange}
-                onBlur={handleBlur}
-                value={values.name}
-                helperText={
-                  <ErrorMessage
-                    name="name"
-                    component="span"
-                    style={{ color: "red" }}
-                  />
-                }
-              />
-
-              <Field
-                as={TextField}
-                fullWidth
-                margin="normal"
-                type="date"
-                label="Date de début"
-                name="dateDebut"
-                InputLabelProps={{ shrink: true }}
-                onChange={handleChange}
-                onBlur={handleBlur}
-                value={values.dateDebut}
-                helperText={
-                  <ErrorMessage
-                    name="dateDebut"
-                    component="span"
-                    style={{ color: "red" }}
-                  />
-                }
-              />
-
-              <Field
-                as={TextField}
-                fullWidth
-                margin="normal"
-                type="date"
-                label="Date de fin"
-                name="dateFin"
-                InputLabelProps={{ shrink: true }}
-                onChange={handleChange}
-                onBlur={handleBlur}
-                value={values.dateFin}
-                helperText={
-                  <ErrorMessage
-                    name="dateFin"
-                    component="span"
-                    style={{ color: "red" }}
-                  />
-                }
-              />
-
-              <Button
-                type="submit"
-                variant="contained"
-                color="primary"
-                sx={{ mt: 2 }}
-              >
-                Enregistrer les modifications
-              </Button>
-            </Box>
-          </Form>
-        )}
-      </Formik>
-
-      {/* Section des artistes */}
-      <Box mt="3rem">
-        <Typography variant="h6">Artistes Associés</Typography>
-        <List>
-          {event.artistes.map((artist, index) => (
-            <ListItem
-              key={index}
-              secondaryAction={
-                <IconButton
-                  edge="end"
-                  color="error"
-                  onClick={() => handleRemoveArtist(artist.id)}
-                >
-                  <Delete />
-                </IconButton>
+        Supprimer l'Événement
+      </Button>
+    </Box>
+  
+    {/* Formulaire avec Formik */}
+    <Formik
+      initialValues={{
+        name: event.name || "",
+        dateDebut: event.dateDebut || "",
+        dateFin: event.dateFin || "",
+      }}
+      validationSchema={validationSchema}
+      onSubmit={handleSubmit}
+    >
+      {({ values, handleChange, handleBlur }) => (
+        <Form>
+          <Box mt="2rem">
+            <Typography variant="h6">Modifier l'Événement</Typography>
+  
+            <Field
+              as={TextField}
+              fullWidth
+              margin="normal"
+              label="Nom"
+              name="name"
+              onChange={handleChange}
+              onBlur={handleBlur}
+              value={values.name}
+              helperText={
+                <ErrorMessage
+                  name="name"
+                  component="span"
+                  style={{ color: "red" }}
+                />
               }
+            />
+  
+            <Field
+              as={TextField}
+              fullWidth
+              margin="normal"
+              type="date"
+              label="Date de début"
+              name="dateDebut"
+              InputLabelProps={{ shrink: true }}
+              onChange={handleChange}
+              onBlur={handleBlur}
+              value={values.dateDebut}
+              helperText={
+                <ErrorMessage
+                  name="dateDebut"
+                  component="span"
+                  style={{ color: "red" }}
+                />
+              }
+            />
+  
+            <Field
+              as={TextField}
+              fullWidth
+              margin="normal"
+              type="date"
+              label="Date de fin"
+              name="dateFin"
+              InputLabelProps={{ shrink: true }}
+              onChange={handleChange}
+              onBlur={handleBlur}
+              value={values.dateFin}
+              helperText={
+                <ErrorMessage
+                  name="dateFin"
+                  component="span"
+                  style={{ color: "red" }}
+                />
+              }
+            />
+  
+            <Button
+              type="submit"
+              variant="contained"
+              color="primary"
+              sx={{ mt: 2 }}
             >
-              <ListItemText primary={artist.label} />
-            </ListItem>
-          ))}
-        </List>
-
-        {/* Sélection et ajout d'un artiste */}
-        <Box mt="1rem">
-          {availableArtists.length === 0 ? (
-            <Typography>Aucun artiste disponible à ajouter.</Typography>
-          ) : (
-            <>
-              <Select
-                value={selectedArtist}
-                onChange={(e) => setSelectedArtist(e.target.value)}
-                displayEmpty
-                fullWidth
+              Enregistrer les modifications
+            </Button>
+          </Box>
+        </Form>
+      )}
+    </Formik>
+  
+    {/* Section des artistes */}
+    <Box mt="3rem">
+      <Typography variant="h6">Artistes Associés</Typography>
+      <List>
+        {event.artistes.map((artist, index) => (
+          <ListItem
+            key={index}
+            secondaryAction={
+              <IconButton
+                edge="end"
+                color="error"
+                onClick={() => handleRemoveArtist(artist.id)}
               >
-                <MenuItem value="" disabled>
-                  Sélectionner un artiste
+                <Delete />
+              </IconButton>
+            }
+          >
+            <ListItemText primary={artist.label} />
+          </ListItem>
+        ))}
+      </List>
+  
+      {/* Sélection et ajout d'un artiste */}
+      <Box mt="1rem">
+        {availableArtists.length === 0 ? (
+          <Typography>Aucun artiste disponible à ajouter.</Typography>
+        ) : (
+          <>
+            <Select
+              value={selectedArtist}
+              onChange={(e) => setSelectedArtist(e.target.value)}
+              displayEmpty
+              fullWidth
+            >
+              <MenuItem value="" disabled>
+                Sélectionner un artiste
+              </MenuItem>
+              {availableArtists.map((artist) => (
+                <MenuItem key={artist.id} value={artist.id}>
+                  {artist.label}
                 </MenuItem>
-                {availableArtists.map((artist) => (
-                  <MenuItem key={artist.id} value={artist.id}>
-                    {artist.label}
-                  </MenuItem>
-                ))}
-              </Select>
-              <Button
-                variant="contained"
-                color="primary"
-                startIcon={<Add />}
-                onClick={handleAddArtist}
-                sx={{ mt: 1 }}
-                disabled={!selectedArtist}
-              >
-                Ajouter
-              </Button>
-            </>
-          )}
-        </Box>
+              ))}
+            </Select>
+            <Button
+              variant="contained"
+              color="primary"
+              startIcon={<Add />}
+              onClick={handleAddArtist}
+              sx={{ mt: 1 }}
+              disabled={!selectedArtist}
+            >
+              Ajouter
+            </Button>
+          </>
+        )}
       </Box>
     </Box>
+  </Box>
+  
   );
 };
 
