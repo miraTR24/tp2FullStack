@@ -12,6 +12,7 @@ import EventDetails from "./pages/Accueil/EventDetails";
 import Accueil from "./pages/Accueil";
 import Artists from "./pages/Artists";
 import ArtistDetails from "./pages/Artists/ArtistDetails";
+import ErrorPage from "./pages/ErrorPage/ErrorPage";
 
 
 
@@ -28,6 +29,7 @@ function App() {
           <CssBaseline />
           <Routes>
           <Route path="/*" element={<PageNotFound />} />
+          <Route path="/erreur" element={<ErrorPage />} />
           <Route element={<Layout />}>
             <Route path="/" element={<Accueil />} />
             <Route path="/Artistes" element={<Artists />} />

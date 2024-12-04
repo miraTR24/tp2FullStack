@@ -1,6 +1,6 @@
 const BASE_URL = process.env.REACT_APP_BACKEND_URL || "http://localhost:8080";
 
-const getArtists = async (page , size ) => {
+const getArtists = async (page , size ,navigate ) => {
   try {
     const apiUrl = `${BASE_URL}/artists?page=${page}&size=${size}`;
     const response = await fetch(apiUrl, { method: "GET", headers: { "Content-Type": "application/json" } });
@@ -26,12 +26,16 @@ const getArtists = async (page , size ) => {
       currentPage: data.number || 0
     };
   } catch (error) {
-    console.error("Erreur lors de la récupération des artistes :", error.message);
-    return null;
+    if (error.message.includes("Failed to fetch")) {
+      console.error("Serveur inaccessible. Vérifiez que le backend est en cours d'exécution.");
+      navigate("/erreur", { state: { errorCode: "CONN_REFUSED", errorMessage: "Connexion refusée au serveur." } });
+    } else {
+      console.error("Erreur inconnue :", error.message);
+    }
   }
 };
 
-const getSearchedArtists = async (searchName) => {
+const getSearchedArtists = async (searchName,navigate) => {
   try {
     // Récupération de tous les artistes depuis l'API
     const apiUrl = `${BASE_URL}/artists`;
@@ -61,8 +65,12 @@ const getSearchedArtists = async (searchName) => {
       currentPage: data.number || 0
     };
   } catch (error) {
-    console.error("Erreur lors de la recherche des artistes :", error.message);
-    return null;
+    if (error.message.includes("Failed to fetch")) {
+      console.error("Serveur inaccessible. Vérifiez que le backend est en cours d'exécution.");
+      navigate("/erreur", { state: { errorCode: "CONN_REFUSED", errorMessage: "Connexion refusée au serveur." } });
+    } else {
+      console.error("Erreur inconnue :", error.message);
+    }
   }
 };
 
@@ -94,12 +102,16 @@ const getArtistById = async (id,navigate) => {
       })) || []
     };
   } catch (error) {
-    console.error("Erreur lors de la récupération de l'artiste :", error.message);
-    return null;
+    if (error.message.includes("Failed to fetch")) {
+      console.error("Serveur inaccessible. Vérifiez que le backend est en cours d'exécution.");
+      navigate("/erreur", { state: { errorCode: "CONN_REFUSED", errorMessage: "Connexion refusée au serveur." } });
+    } else {
+      console.error("Erreur inconnue :", error.message);
+    }
   }
 };
 
-const updateArtist = async (id, artistData) => {
+const updateArtist = async (id, artistData,navigate) => {
   try {
     const apiUrl = `${BASE_URL}/artists/${id}`;
     const response = await fetch(apiUrl, {
@@ -115,12 +127,16 @@ const updateArtist = async (id, artistData) => {
 
     return await response.json();
   } catch (error) {
-    console.error("Erreur lors de la mise à jour de l'artiste :", error.message);
-    throw error;
+    if (error.message.includes("Failed to fetch")) {
+      console.error("Serveur inaccessible. Vérifiez que le backend est en cours d'exécution.");
+      navigate("/erreur", { state: { errorCode: "CONN_REFUSED", errorMessage: "Connexion refusée au serveur." } });
+    } else {
+      console.error("Erreur inconnue :", error.message);
+    }
   }
 };
 
-const removeEventFromArtist = async (eventId, artistId) => {
+const removeEventFromArtist = async (eventId, artistId,navigate) => {
   try {
     const apiUrl = `${BASE_URL}/events/${artistId}/artists/${eventId}`;
     const response = await fetch(apiUrl, { method: "DELETE" });
@@ -132,12 +148,16 @@ const removeEventFromArtist = async (eventId, artistId) => {
 
     return null;
   } catch (error) {
-    console.error("Erreur lors de la suppression de l'artiste de l'événement :", error.message);
-    throw error;
+    if (error.message.includes("Failed to fetch")) {
+      console.error("Serveur inaccessible. Vérifiez que le backend est en cours d'exécution.");
+      navigate("/erreur", { state: { errorCode: "CONN_REFUSED", errorMessage: "Connexion refusée au serveur." } });
+    } else {
+      console.error("Erreur inconnue :", error.message);
+    }
   }
 };
 
-const getAvailableArtistsForEvent = async (eventId) => {
+const getAvailableArtistsForEvent = async (eventId,navigate) => {
   try {
     const eventApiUrl = `${BASE_URL}/artists/${eventId}`;
     const eventResponse = await fetch(eventApiUrl, { method: "GET", headers: { "Content-Type": "application/json" } });
@@ -164,12 +184,16 @@ const getAvailableArtistsForEvent = async (eventId) => {
       artists: event.events || []
     }));
   } catch (error) {
-    console.error("Erreur lors de la récupération des artistes disponibles :", error.message);
-    return [];
+    if (error.message.includes("Failed to fetch")) {
+      console.error("Serveur inaccessible. Vérifiez que le backend est en cours d'exécution.");
+      navigate("/erreur", { state: { errorCode: "CONN_REFUSED", errorMessage: "Connexion refusée au serveur." } });
+    } else {
+      console.error("Erreur inconnue :", error.message);
+    }
   }
 };
 
-const addArtistToEvent = async (eventId, artistId) => {
+const addArtistToEvent = async (eventId, artistId,navigate) => {
   try {
     const apiUrl = `${BASE_URL}/events/${artistId}/artists/${eventId}`;
     const response = await fetch(apiUrl, { method: "POST", headers: { "Content-Type": "application/json" } });
@@ -181,12 +205,16 @@ const addArtistToEvent = async (eventId, artistId) => {
 
     return response.status === 201 ? null : await response.json();
   } catch (error) {
-    console.error("Erreur lors de l'ajout de l'artiste à l'événement :", error.message);
-    throw error;
+    if (error.message.includes("Failed to fetch")) {
+      console.error("Serveur inaccessible. Vérifiez que le backend est en cours d'exécution.");
+      navigate("/erreur", { state: { errorCode: "CONN_REFUSED", errorMessage: "Connexion refusée au serveur." } });
+    } else {
+      console.error("Erreur inconnue :", error.message);
+    }
   }
 };
 
-const addArtist = async (artist) => {
+const addArtist = async (artist,navigate) => {
   try {
     const apiUrl = `${BASE_URL}/artists`;
     const response = await fetch(apiUrl, {
@@ -202,12 +230,16 @@ const addArtist = async (artist) => {
 
     return await response.json();
   } catch (error) {
-    console.error("Erreur lors de l'ajout d'un artiste :", error.message);
-    throw error;
+    if (error.message.includes("Failed to fetch")) {
+      console.error("Serveur inaccessible. Vérifiez que le backend est en cours d'exécution.");
+      navigate("/erreur", { state: { errorCode: "CONN_REFUSED", errorMessage: "Connexion refusée au serveur." } });
+    } else {
+      console.error("Erreur inconnue :", error.message);
+    }
   }
 };
 
-const deleteArtist = async (id) => {
+const deleteArtist = async (id,navigate) => {
   try {
     const BASE_URL = process.env.REACT_APP_BACKEND_URL || "http://localhost:8080";
     const apiUrl = `${BASE_URL}/artists/${id}`;
@@ -226,8 +258,12 @@ const deleteArtist = async (id) => {
 
     return true; // Retourne true si la suppression est réussie
   } catch (error) {
-    console.error("Erreur lors de la suppression de l'artist :", error.message);
-    throw error;
+    if (error.message.includes("Failed to fetch")) {
+      console.error("Serveur inaccessible. Vérifiez que le backend est en cours d'exécution.");
+      navigate("/erreur", { state: { errorCode: "CONN_REFUSED", errorMessage: "Connexion refusée au serveur." } });
+    } else {
+      console.error("Erreur inconnue :", error.message);
+    }
   }
 };
 

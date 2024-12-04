@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useParams,useNavigate } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import {
   Typography,
   Box,
@@ -11,6 +11,8 @@ import {
   ListItemText,
   IconButton,
   TextField,
+  Snackbar,
+  Alert,
 } from "@mui/material";
 import { Add, Delete } from "@mui/icons-material";
 import { Formik, Form, Field, ErrorMessage } from "formik";
@@ -22,66 +24,97 @@ const ArtistDetails = () => {
   const [event, setEvent] = useState(null);
   const [availableArtists, setAvailableArtists] = useState([]);
   const [selectedArtist, setSelectedArtist] = useState("");
+  const [snackbar, setSnackbar] = useState({ open: false, message: "", severity: "success" });
   const navigate = useNavigate();
+
+  const handleCloseSnackbar = () => {
+    setSnackbar({ ...snackbar, open: false });
+  };
+
+  const showSnackbar = (message, severity = "success") => {
+    setSnackbar({ open: true, message, severity });
+  };
 
   // Récupération des détails de l'événement
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const eventData = await artistService.getArtistById(id,navigate);
+        const eventData = await artistService.getArtistById(id, navigate);
         setEvent(eventData);
 
-        const available = await artistService.getAvailableArtistsForEvent(id);
+        const available = await artistService.getAvailableArtistsForEvent(id, navigate);
         setAvailableArtists(available);
       } catch (error) {
         console.error("Erreur lors de la récupération des données :", error);
+        showSnackbar("Erreur lors du chargement des données.", "error");
       }
     };
 
     fetchData();
-  }, [id]);
+  }, [id, navigate]);
 
   const handleAddArtist = async () => {
     if (!selectedArtist) {
-      alert("Veuillez sélectionner un artiste.");
+      showSnackbar("Veuillez sélectionner un artiste.", "warning");
       return;
     }
 
     try {
-      await artistService.addArtistToEvent(id, selectedArtist);
+      await artistService.addArtistToEvent(id, selectedArtist, navigate);
 
-      // Mettre à jour les données après ajout
-      const updatedEvent = await artistService.getArtistById(id);
+      const updatedEvent = await artistService.getArtistById(id, navigate);
       setEvent(updatedEvent);
 
-      const updatedAvailable = await artistService.getAvailableArtistsForEvent(id);
+      const updatedAvailable = await artistService.getAvailableArtistsForEvent(id, navigate);
       setAvailableArtists(updatedAvailable);
 
-      // Réinitialiser la sélection
       setSelectedArtist("");
-
-      alert("Artiste ajouté avec succès !");
+      showSnackbar("Artiste ajouté avec succès !");
     } catch (error) {
       console.error("Erreur lors de l'ajout d'un artiste :", error);
-      alert("Impossible d'ajouter cet artiste.");
+      showSnackbar("Impossible d'ajouter cet artiste.", "error");
     }
   };
 
   const handleRemoveArtist = async (artistId) => {
     try {
-      await artistService.removeEventFromArtist(id, artistId);
+      await artistService.removeEventFromArtist(id, artistId, navigate);
 
-      // Mettre à jour les données après suppression
-      const updatedEvent = await artistService.getArtistById(id);
+      const updatedEvent = await artistService.getArtistById(id, navigate);
       setEvent(updatedEvent);
 
-      const updatedAvailable = await artistService.getAvailableArtistsForEvent(id);
+      const updatedAvailable = await artistService.getAvailableArtistsForEvent(id, navigate);
       setAvailableArtists(updatedAvailable);
 
-      alert("Artiste supprimé avec succès !");
+      showSnackbar("Artiste supprimé avec succès !");
     } catch (error) {
       console.error("Erreur lors de la suppression de l'artiste :", error);
-      alert("Impossible de supprimer cet artiste.");
+      showSnackbar("Impossible de supprimer cet artiste.", "error");
+    }
+  };
+
+  const handleSubmit = async (values) => {
+    try {
+      await artistService.updateArtist(id, { label: values.name }, navigate);
+
+      const updatedEvent = await artistService.getArtistById(id, navigate);
+      setEvent(updatedEvent);
+      showSnackbar("Artiste mis à jour avec succès !");
+    } catch (error) {
+      console.error("Erreur lors de la mise à jour de l'artiste :", error);
+      showSnackbar("Une erreur est survenue lors de la mise à jour.", "error");
+    }
+  };
+
+  const handleDeleteArtist = async () => {
+    if (window.confirm("Êtes-vous sûr de vouloir supprimer cet artiste ?")) {
+      try {
+        await artistService.deleteArtist(id, navigate);
+        showSnackbar("Artiste supprimé avec succès !");
+        navigate("/Artistes");
+      } catch (error) {
+        showSnackbar("Une erreur est survenue lors de la suppression de l'artiste.", "error");
+      }
     }
   };
 
@@ -89,59 +122,28 @@ const ArtistDetails = () => {
     return <Typography>Chargement...</Typography>;
   }
 
-  // Validation du formulaire avec Yup
   const validationSchema = Yup.object().shape({
     name: Yup.string()
       .min(3, "Le nom doit contenir au moins 3 caractères.")
       .required("Le nom est obligatoire."),
   });
 
-  const handleSubmit = async (values) => {
-    try {
-      await artistService.updateArtist(id, {
-        label: values.name,
-      });
-
-      const updatedEvent = await artistService.getArtistById(id);
-      setEvent(updatedEvent);
-      alert("Artiste mis à jour avec succès !");
-    } catch (error) {
-      console.error("Erreur lors de la mise à jour de l'artiste :", error);
-      alert("Une erreur est survenue lors de la mise à jour.");
-    }
-  };
-
-  const handleDeleteArtist = async () => {
-    if (window.confirm("Êtes-vous sûr de vouloir supprimer cet artiste ?")) {
-      try {
-        await artistService.deleteArtist(id); // Suppression de l'événement
-        alert("Artiste supprimé avec succès !");
-        navigate("/Artistes"); // Redirige vers la liste des événements
-      } catch (error) {
-        alert("Une erreur est survenue lors de la suppression de l'artiste.");
-      }
-    }
-  };
-
   return (
     <Box m="1.5rem 2.5rem">
       <Typography variant="h4">Détails de l'Artiste</Typography>
       <Box mt="2rem" sx={{ display: "flex", justifyContent: "flex-end" }}>
-      <Button
-        variant="contained"
-        color="error"
-        startIcon={<Delete />}
-        onClick={handleDeleteArtist}
-      >
-        Supprimer l'Artiste
-      </Button>
-    </Box>
+        <Button
+          variant="contained"
+          color="error"
+          startIcon={<Delete />}
+          onClick={handleDeleteArtist}
+        >
+          Supprimer l'Artiste
+        </Button>
+      </Box>
 
-      {/* Formulaire avec Formik */}
       <Formik
-        initialValues={{
-          name: event.name || "",
-        }}
+        initialValues={{ name: event.name || "" }}
         validationSchema={validationSchema}
         onSubmit={handleSubmit}
       >
@@ -149,7 +151,6 @@ const ArtistDetails = () => {
           <Form>
             <Box mt="2rem">
               <Typography variant="h6">Modifier l'Artiste</Typography>
-
               <Field
                 as={TextField}
                 fullWidth
@@ -160,14 +161,9 @@ const ArtistDetails = () => {
                 onBlur={handleBlur}
                 value={values.name}
                 helperText={
-                  <ErrorMessage
-                    name="name"
-                    component="span"
-                    style={{ color: "red" }}
-                  />
+                  <ErrorMessage name="name" component="span" style={{ color: "red" }} />
                 }
               />
-
               <Button
                 type="submit"
                 variant="contained"
@@ -181,7 +177,6 @@ const ArtistDetails = () => {
         )}
       </Formik>
 
-      {/* Section des artistes associés */}
       <Box mt="3rem">
         <Typography variant="h6">Artistes Associés</Typography>
         <List>
@@ -203,7 +198,6 @@ const ArtistDetails = () => {
           ))}
         </List>
 
-        {/* Ajouter un artiste */}
         <Box mt="1rem">
           {availableArtists.length === 0 ? (
             <Typography>Aucun artiste disponible à ajouter.</Typography>
@@ -238,6 +232,22 @@ const ArtistDetails = () => {
           )}
         </Box>
       </Box>
+
+      {/* Snackbar pour les notifications */}
+      <Snackbar
+        open={snackbar.open}
+        autoHideDuration={4000}
+        onClose={handleCloseSnackbar}
+        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+      >
+        <Alert
+          onClose={handleCloseSnackbar}
+          severity={snackbar.severity}
+          sx={{ width: "100%" }}
+        >
+          {snackbar.message}
+        </Alert>
+      </Snackbar>
     </Box>
   );
 };
