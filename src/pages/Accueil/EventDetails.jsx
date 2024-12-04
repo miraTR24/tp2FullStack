@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import {
   Typography,
   Box,
@@ -23,13 +24,14 @@ const EventDetails = () => {
   const [artist, setArtist] = useState("");
   const [availableArtists, setAvailableArtists] = useState([]);
   const [selectedArtist, setSelectedArtist] = useState("");
+  const navigate = useNavigate();
 
   // Récupération des détails de l'événement
   useEffect(() => {
     const fetchData = async () => {
       const eventData = await eventService.getEventById(id);
       setEvent(eventData);
-      const data = await eventService.getAllArtists(id);
+      const data = await eventService.getAllArtists(id,navigate);
       setAvailableArtists(data);
     };
 

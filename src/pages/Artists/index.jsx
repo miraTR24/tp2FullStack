@@ -10,6 +10,9 @@ import {
   Typography,
   useTheme,
   useMediaQuery,
+  Dialog,
+  Snackbar,
+  Alert
 } from "@mui/material";
 import artistService from "../../services/artistService"; 
 import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
@@ -82,35 +85,73 @@ const Accueil = () => {
   const artistsPerPage = 9;
   const theme = useTheme();
   const isNonMobile = useMediaQuery("(min-width: 1000px)");
+  const [openDialog, setOpenDialog] = useState(false);
+  const [newArtistName, setNewArtistName] = useState("");
+  const [refresh, setRefresh] = useState(false);
+  const [openSnackbar, setOpenSnackbar] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState("");
+  const [error, setError] = useState("");
 
   useEffect(() => {
-    const fetchArtists = async () => {
-      setIsLoading(true);
-      const data = await artistService.getArtists(currentPage, artistsPerPage, searchName); 
-      if (data) {
-        setArtists(data.artists);
-        setTotalPages(data.totalPages);
-      }
-      setIsLoading(false);
-    };
-
     fetchArtists();
-  }, [currentPage]);
+  }, [currentPage, searchName, refresh]);
 
-  useEffect(() => {
-
-    handleSearch();
-  }, [searchName]);
-
-  const handleSearch = async () => {
+  const fetchArtists = async () => {
     setIsLoading(true);
-    const data = await artistService.getSearchedArtists( searchName); // Ajout du paramètre de recherche
-    if (data) {
-      setArtists(data.artists);
-      setTotalPages(data.totalPages);
+  
+    try {
+      // Récupérer tous les artistes depuis l'API
+      const allArtistsData = await artistService.getArtists(); // Récupération sans pagination ni recherche
+      if (!allArtistsData) throw new Error("Impossible de récupérer les artistes");
+  
+      // Filtrage local des artistes par le nom
+      const filteredArtists = allArtistsData.artists.filter((artist) =>
+        artist.name.toLowerCase().includes(searchName.toLowerCase())
+      );
+      // Gestion de la pagination locale
+      const startIndex = currentPage * artistsPerPage;
+      const endIndex = startIndex + artistsPerPage;
+  
+      setArtists(filteredArtists.slice(startIndex, endIndex));
+      setTotalPages(Math.ceil(filteredArtists.length / artistsPerPage));
+    } catch (error) {
+      console.error("Erreur lors de la récupération des artistes :", error.message);
+    } finally {
+      setIsLoading(false);
     }
-    setIsLoading(false);
-    setCurrentPage(0); // Réinitialiser à la première page
+  };
+  
+
+  const handleSearch = () => {
+    setCurrentPage(0);
+    fetchArtists();
+  };
+
+  const handleOpenDialog = () => setOpenDialog(true);
+  const handleCloseDialog = () => {
+    setOpenDialog(false);
+    setNewArtistName("");
+  };
+
+  const handleAddArtist = async () => {
+    if (newArtistName.trim() === "") return;
+    if (newArtistName.trim().length < 3) {
+      setError("Le nom de l'artiste doit contenir au moins 3 lettres.");
+      return;
+    }
+  
+    try {
+      const newArtist = await artistService.addArtist({ label: newArtistName });
+      console.log("hh",newArtist);
+      if (newArtist) {
+        setRefresh(prev => !prev);
+        handleCloseDialog();
+        setSnackbarMessage("Artiste ajouté avec succès !");
+        setOpenSnackbar(true);
+      }
+    } catch (error) {
+      console.error("Erreur lors de l'ajout de l'artiste :", error.message);
+    }
   };
 
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
@@ -121,8 +162,60 @@ const Accueil = () => {
     <Box m="1.5rem 2.5rem">
       <Header title="Look at our amazing Artists" />
       <hr style={{ border: `1px solid ${theme.palette.neutral.main}`, marginTop: "50px" }} />
+      <Box display="flex" justifyContent="flex-end" mb="1rem">
+        <Button
+          variant="contained"
+          color="primary"
+          onClick={handleOpenDialog}
+          sx={{ textTransform: "none" }}
+        >
+          Ajouter un artiste
+        </Button>
+      </Box>
 
-      {/* Barre de recherche */}
+      <Dialog
+        open={openDialog}
+        onClose={handleCloseDialog}
+        aria-labelledby="dialog-title"
+      >
+        <Box p="1.5rem" display="flex" flexDirection="column" gap="1rem">
+          <Typography id="dialog-title" variant="h6">
+            Ajouter un nouvel artiste
+          </Typography>
+          <TextField
+            label="Nom de l'artiste"
+            variant="outlined"
+            value={newArtistName}
+            onChange={(e) => {
+              setNewArtistName(e.target.value);
+              setError(""); // Effacer l'erreur en cas de modification
+            }}
+            error={!!error} // Highlight input in red if there's an error
+            helperText={error} // Show the error message below the input
+          />
+          <Box display="flex" justifyContent="flex-end" gap="1rem">
+            <Button onClick={handleCloseDialog} color="secondary">
+              Annuler
+            </Button>
+            <Button onClick={handleAddArtist} variant="contained" color="primary">
+              Ajouter
+            </Button>
+          </Box>
+        </Box>
+      </Dialog>
+
+
+      <Snackbar
+        open={openSnackbar}
+        autoHideDuration={4000}
+        onClose={() => setOpenSnackbar(false)}
+        anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+      >
+        <Alert onClose={() => setOpenSnackbar(false)} severity="success" variant="filled">
+          {snackbarMessage}
+        </Alert>
+      </Snackbar>
+
       <Box
         display="flex"
         justifyContent="space-between"

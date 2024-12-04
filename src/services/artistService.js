@@ -1,6 +1,6 @@
 const BASE_URL = process.env.REACT_APP_BACKEND_URL || "http://localhost:8080";
 
-const getArtists = async (page = 0, size = 10) => {
+const getArtists = async (page , size ) => {
   try {
     const apiUrl = `${BASE_URL}/artists?page=${page}&size=${size}`;
     const response = await fetch(apiUrl, { method: "GET", headers: { "Content-Type": "application/json" } });
@@ -31,9 +31,10 @@ const getArtists = async (page = 0, size = 10) => {
   }
 };
 
-const getSearchedArtists = async (searchName = "") => {
+const getSearchedArtists = async (searchName) => {
   try {
-    const apiUrl = `${BASE_URL}/artists?name=${encodeURIComponent(searchName)}`;
+    // Récupération de tous les artistes depuis l'API
+    const apiUrl = `${BASE_URL}/artists`;
     const response = await fetch(apiUrl, { method: "GET", headers: { "Content-Type": "application/json" } });
 
     if (!response.ok) {
@@ -44,11 +45,16 @@ const getSearchedArtists = async (searchName = "") => {
     const data = await response.json();
     if (!data.content) throw new Error("Invalid response structure");
 
+    // Filtrage des artistes selon le searchName
+    const filteredArtists = data.content.filter(artist => 
+      artist.label && artist.label.toLowerCase().includes(searchName.toLowerCase())
+    );
+
     return {
-      artists: data.content.map(event => ({
-        id: event.id || null,
-        name: event.label || "Nom indisponible",
-        eventsLabels: event.events?.map(e => e.label) || []
+      artists: filteredArtists.map(artist => ({
+        id: artist.id || null,
+        name: artist.label || "Nom indisponible",
+        eventsLabels: artist.events?.map(event => event.label) || []
       })),
       totalPages: data.totalPages || 0,
       totalElements: data.totalElements || 0,
@@ -60,15 +66,21 @@ const getSearchedArtists = async (searchName = "") => {
   }
 };
 
-const getArtistById = async (id) => {
+
+const getArtistById = async (id,navigate) => {
   try {
     const apiUrl = `${BASE_URL}/artists/${id}`;
     const response = await fetch(apiUrl, { method: "GET", headers: { "Content-Type": "application/json" } });
 
     if (!response.ok) {
+      if (response.status === 404 && navigate) {
+        navigate("/*"); // Redirection vers PageNotFound
+        return null;
+      }
       const errorText = await response.text();
       throw new Error(`HTTP error! Status: ${response.status} - ${errorText}`);
     }
+
 
     const data = await response.json();
     if (!data) throw new Error("Artist not found");
@@ -174,6 +186,28 @@ const addArtistToEvent = async (eventId, artistId) => {
   }
 };
 
+const addArtist = async (artist) => {
+  try {
+    const apiUrl = `${BASE_URL}/artists`;
+    const response = await fetch(apiUrl, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(artist),
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(`HTTP error! Status: ${response.status} - ${errorText}`);
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error("Erreur lors de l'ajout d'un artiste :", error.message);
+    throw error;
+  }
+};
+
+
 export default {
   getArtists,
   getSearchedArtists,
@@ -181,5 +215,6 @@ export default {
   updateArtist,
   removeEventFromArtist,
   getAvailableArtistsForEvent,
-  addArtistToEvent
+  addArtistToEvent,
+  addArtist
 };

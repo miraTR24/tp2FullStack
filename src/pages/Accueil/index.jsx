@@ -10,6 +10,10 @@ import {
   Typography,
   useTheme,
   useMediaQuery,
+  Dialog,
+  TextField,
+  Snackbar,
+  Alert
 } from "@mui/material";
 import eventService from "../../services/eventService"; 
 import FlexBetween from "../../components/FlexBetween";
@@ -136,6 +140,15 @@ const Accueil = () => {
   const eventsPerPage = 9; 
   const theme = useTheme();
   const isNonMobile = useMediaQuery("(min-width: 1000px)");
+  const [openDialog, setOpenDialog] = useState(false);
+  const [newEventName, setNewEventName] = useState("");
+  const [refresh, setRefresh] = useState(false);
+  const [newEventStartDate, setNewEventStartDate] = useState("");
+  const [newEventEndDate, setNewEventEndDate] = useState("");
+  const [errors, setErrors] = useState({});
+  const [isTouched, setIsTouched] = useState(false);
+  const [openSnackbar, setOpenSnackbar] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState("");
 
   useEffect(() => {
     const fetchEvents = async () => {
@@ -149,7 +162,72 @@ const Accueil = () => {
     };
 
     fetchEvents();
-  }, [currentPage]);
+  }, [currentPage,refresh]);
+
+  useEffect(() => {
+    handleAddEvent();
+  }, [refresh]);
+
+  const validateFields = () => {
+    const newErrors = {};
+    if (!newEventName.trim()) {
+      newErrors.name = "Le nom de l'événement est obligatoire.";
+    }else if (newEventName.trim().length < 3) {
+      newErrors.name="Le nom de l'artiste doit contenir au moins 3 lettres.";
+    }
+    if (!newEventStartDate) {
+      newErrors.startDate = "La date de début est obligatoire.";
+    }
+    if (!newEventEndDate) {
+      newErrors.endDate = "La date de fin est obligatoire.";
+    } else if (new Date(newEventEndDate) < new Date(newEventStartDate)) {
+      newErrors.endDate = "La date de fin doit être postérieure à la date de début.";
+    }
+  
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+  
+const handleAddEvent = async () => {
+  setIsTouched(true); // Marque que le formulaire a été modifié
+  if (!validateFields()) return; // Si des erreurs, arrête l'exécution
+
+  try {
+    const newEvent = await eventService.addEvent({
+      label: newEventName,
+      startDate: newEventStartDate,
+      endDate: newEventEndDate,
+    });
+    if (newEvent) {
+      setEvents((prev) => [...prev, newEvent]);
+      setRefresh(!refresh);
+      handleCloseDialog();
+      setSnackbarMessage("Evenement ajouté avec succès !");
+      setOpenSnackbar(true);
+    }
+  } catch (error) {
+    console.error("Erreur lors de l'ajout de l'événement :", error.message);
+    setErrors((prev) => ({
+      ...prev,
+      global: "Une erreur s'est produite. Veuillez réessayer.",
+    }));
+  }
+};
+  
+
+
+  
+  
+
+const handleOpenDialog = () => {
+  setOpenDialog(true);
+  setErrors({}); // Réinitialise les erreurs
+  setIsTouched(false); // Réinitialise l'état "touché"
+};
+const handleCloseDialog = () => {
+  setOpenDialog(false);
+  setNewEventName("");
+};
 
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
   const nextPage = () => setCurrentPage((prev) => Math.min(prev + 1, totalPages - 1));
@@ -159,6 +237,76 @@ const Accueil = () => {
     <Box m="1.5rem 2.5rem">
       <Header title="Welcome to MyEvents" />
       <hr style={{ border: `1px solid ${theme.palette.neutral.main}`, marginTop: "50px" }} />
+
+      <Box display="flex" justifyContent="flex-end" mb="1rem">
+  <Button
+    variant="contained"
+    color="primary"
+    onClick={handleOpenDialog}
+    sx={{ textTransform: "none" }}
+  >
+    Ajouter un evenement
+  </Button>
+</Box>
+
+<Dialog open={openDialog} onClose={handleCloseDialog}>
+    <Box p="1.5rem" display="flex" flexDirection="column" gap="1rem">
+      <Typography variant="h6">Ajouter un nouvel événement</Typography>
+      {errors.global && (
+        <Typography color="error" sx={{ fontSize: 14 }}>
+          {errors.global}
+        </Typography>
+      )}
+      <TextField
+        label="Nom de l'événement"
+        variant="outlined"
+        value={newEventName}
+        onChange={(e) => setNewEventName(e.target.value)}
+        error={isTouched && !!errors.name}
+        helperText={isTouched && errors.name}
+      />
+      <TextField
+        label="Date de début"
+        type="date"
+        InputLabelProps={{ shrink: true }}
+        variant="outlined"
+        value={newEventStartDate}
+        onChange={(e) => setNewEventStartDate(e.target.value)}
+        error={isTouched && !!errors.startDate}
+        helperText={isTouched && errors.startDate}
+      />
+      <TextField
+        label="Date de fin"
+        type="date"
+        InputLabelProps={{ shrink: true }}
+        variant="outlined"
+        value={newEventEndDate}
+        onChange={(e) => setNewEventEndDate(e.target.value)}
+        error={isTouched && !!errors.endDate}
+        helperText={isTouched && errors.endDate}
+      />
+      <Box display="flex" justifyContent="flex-end" gap="1rem">
+        <Button onClick={handleCloseDialog} color="secondary">
+          Annuler
+        </Button>
+        <Button onClick={handleAddEvent} variant="contained" color="primary">
+          Ajouter
+        </Button>
+      </Box>
+    </Box>
+  </Dialog>
+
+  <Snackbar
+        open={openSnackbar}
+        autoHideDuration={4000}
+        onClose={() => setOpenSnackbar(false)}
+        anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+      >
+        <Alert onClose={() => setOpenSnackbar(false)} severity="success" variant="filled">
+          {snackbarMessage}
+        </Alert>
+      </Snackbar>
+
 
       {!isLoading ? (
         <Box
