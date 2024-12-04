@@ -91,6 +91,7 @@ const Accueil = () => {
   const [openSnackbar, setOpenSnackbar] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
   const [error, setError] = useState("");
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetchArtists();
@@ -101,7 +102,7 @@ const Accueil = () => {
   
     try {
       // Récupérer tous les artistes depuis l'API
-      const allArtistsData = await artistService.getArtists(); // Récupération sans pagination ni recherche
+      const allArtistsData = await artistService.getArtists(currentPage, artistsPerPage,navigate); // Récupération sans pagination ni recherche
       if (!allArtistsData) throw new Error("Impossible de récupérer les artistes");
   
       // Filtrage local des artistes par le nom
@@ -141,7 +142,7 @@ const Accueil = () => {
     }
   
     try {
-      const newArtist = await artistService.addArtist({ label: newArtistName });
+      const newArtist = await artistService.addArtist({ label: newArtistName },navigate);
       console.log("hh",newArtist);
       if (newArtist) {
         setRefresh(prev => !prev);

@@ -1,4 +1,4 @@
-const getEvents = async (page = 0, size = 10) => {
+const getEvents = async (page = 0, size = 10,navigate) => {
   try {
     const BASE_URL = process.env.REACT_APP_BACKEND_URL || 'http://localhost:8080';
     const apiUrl = `${BASE_URL}/events?page=${page}&size=${size}`;
@@ -11,6 +11,9 @@ const getEvents = async (page = 0, size = 10) => {
     });
 
     if (!response.ok) {
+      if (response.status === 500 && navigate) {
+        navigate("/error"); // Redirige vers la page d'erreur
+      }
       const errorText = await response.text();
       throw new Error(`HTTP error! Status: ${response.status} - ${errorText}`);
     }
@@ -33,8 +36,12 @@ const getEvents = async (page = 0, size = 10) => {
       currentPage: data.number
     };
   } catch (error) {
-    console.error("Erreur lors de la récupération des données :", error.message);
-    return null;
+    if (error.message.includes("Failed to fetch")) {
+      console.error("Serveur inaccessible. Vérifiez que le backend est en cours d'exécution.");
+      navigate("/erreur", { state: { errorCode: "CONN_REFUSED", errorMessage: "Connexion refusée au serveur." } });
+    } else {
+      console.error("Erreur inconnue :", error.message);
+    }
   }
 };
 
@@ -73,12 +80,16 @@ const getEventById = async (id, navigate) => {
       })) || [],
     };
   } catch (error) {
-    console.error("Erreur lors de la récupération des détails de l'événement :", error.message);
-    return null;
+    if (error.message.includes("Failed to fetch")) {
+      console.error("Serveur inaccessible. Vérifiez que le backend est en cours d'exécution.");
+      navigate("/erreur", { state: { errorCode: "CONN_REFUSED", errorMessage: "Connexion refusée au serveur." } });
+    } else {
+      console.error("Erreur inconnue :", error.message);
+    }
   }
 };
 
-const updateEvent = async (id, eventData) => {
+const updateEvent = async (id, eventData,navigate) => {
   try {
 
     const BASE_URL = process.env.REACT_APP_BACKEND_URL || "http://localhost:8080";
@@ -100,12 +111,16 @@ const updateEvent = async (id, eventData) => {
     const updatedEvent = await response.json(); // Récupère les données mises à jour
     return updatedEvent;
   } catch (error) {
-    console.error("Erreur lors de la mise à jour de l'événement :", error.message);
-    throw error; // Relance l'erreur pour le gestionnaire d'appel
+    if (error.message.includes("Failed to fetch")) {
+      console.error("Serveur inaccessible. Vérifiez que le backend est en cours d'exécution.");
+      navigate("/erreur", { state: { errorCode: "CONN_REFUSED", errorMessage: "Connexion refusée au serveur." } });
+    } else {
+      console.error("Erreur inconnue :", error.message);
+    }
   }
 };
 
-const removeArtistFromEvent = async (eventId, artistId) => {
+const removeArtistFromEvent = async (eventId, artistId,navigate) => {
   try {
     const BASE_URL = process.env.REACT_APP_BACKEND_URL || "http://localhost:8080";
     const apiUrl = `${BASE_URL}/events/${eventId}/artists/${artistId}`;
@@ -122,12 +137,16 @@ const removeArtistFromEvent = async (eventId, artistId) => {
 
     return null; 
   } catch (error) {
-    console.error("Erreur lors de la suppression de l'artiste:", error);
-    throw error; 
+    if (error.message.includes("Failed to fetch")) {
+      console.error("Serveur inaccessible. Vérifiez que le backend est en cours d'exécution.");
+      navigate("/erreur", { state: { errorCode: "CONN_REFUSED", errorMessage: "Connexion refusée au serveur." } });
+    } else {
+      console.error("Erreur inconnue :", error.message);
+    }
   }
 };
 
-const getAllArtists = async (eventId) => {
+const getAllArtists = async (eventId,navigate) => {
   try {
     const BASE_URL = process.env.REACT_APP_BACKEND_URL || "http://localhost:8080";
     
@@ -171,14 +190,18 @@ const getAllArtists = async (eventId) => {
     }));
 
   } catch (error) {
-    console.error("Erreur lors de la récupération des artistes disponibles :", error.message);
-    return [];
+    if (error.message.includes("Failed to fetch")) {
+      console.error("Serveur inaccessible. Vérifiez que le backend est en cours d'exécution.");
+      navigate("/erreur", { state: { errorCode: "CONN_REFUSED", errorMessage: "Connexion refusée au serveur." } });
+    } else {
+      console.error("Erreur inconnue :", error.message);
+    }
   }
 };
 
 
 
-const addArtistToEvent = async (eventId, artistId) => {
+const addArtistToEvent = async (eventId, artistId,navigate) => {
   try {
     const BASE_URL = process.env.REACT_APP_BACKEND_URL || "http://localhost:8080";
     const apiUrl = `${BASE_URL}/events/${eventId}/artists/${artistId}`;
@@ -204,12 +227,16 @@ const addArtistToEvent = async (eventId, artistId) => {
     return updatedEvent;
 
   } catch (error) {
-    console.error("Erreur lors de l'ajout de l'artiste à l'événement :", error.message);
-    throw error;
+    if (error.message.includes("Failed to fetch")) {
+      console.error("Serveur inaccessible. Vérifiez que le backend est en cours d'exécution.");
+      navigate("/erreur", { state: { errorCode: "CONN_REFUSED", errorMessage: "Connexion refusée au serveur." } });
+    } else {
+      console.error("Erreur inconnue :", error.message);
+    }
   }
 };
 
-const addEvent = async (artist) => {
+const addEvent = async (artist,navigate) => {
   try {
     const BASE_URL = process.env.REACT_APP_BACKEND_URL || "http://localhost:8080";
     const apiUrl = `${BASE_URL}/events`;
@@ -227,12 +254,16 @@ const addEvent = async (artist) => {
 
     return await response.json();
   } catch (error) {
-    console.error("Erreur lors de l'ajout d'un events :", error.message);
-    throw error;
+    if (error.message.includes("Failed to fetch")) {
+      console.error("Serveur inaccessible. Vérifiez que le backend est en cours d'exécution.");
+      navigate("/erreur", { state: { errorCode: "CONN_REFUSED", errorMessage: "Connexion refusée au serveur." } });
+    } else {
+      console.error("Erreur inconnue :", error.message);
+    }
   }
 };
 
-const deleteEvent = async (id) => {
+const deleteEvent = async (id,navigate) => {
   try {
     const BASE_URL = process.env.REACT_APP_BACKEND_URL || "http://localhost:8080";
     const apiUrl = `${BASE_URL}/events/${id}`;
@@ -251,8 +282,12 @@ const deleteEvent = async (id) => {
 
     return true; // Retourne true si la suppression est réussie
   } catch (error) {
-    console.error("Erreur lors de la suppression de l'événement :", error.message);
-    throw error;
+    if (error.message.includes("Failed to fetch")) {
+      console.error("Serveur inaccessible. Vérifiez que le backend est en cours d'exécution.");
+      navigate("/erreur", { state: { errorCode: "CONN_REFUSED", errorMessage: "Connexion refusée au serveur." } });
+    } else {
+      console.error("Erreur inconnue :", error.message);
+    }
   }
 };
 

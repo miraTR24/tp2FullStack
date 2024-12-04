@@ -149,11 +149,13 @@ const Accueil = () => {
   const [isTouched, setIsTouched] = useState(false);
   const [openSnackbar, setOpenSnackbar] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
+  const navigate = useNavigate(); // Hook pour naviguer
 
   useEffect(() => {
     const fetchEvents = async () => {
       setIsLoading(true);
-      const data = await eventService.getEvents( currentPage, eventsPerPage);
+
+      const data = await eventService.getEvents( currentPage, eventsPerPage,navigate);
       if (data) {
         setEvents(data.events);
         setTotalPages(data.totalPages);
@@ -197,7 +199,7 @@ const handleAddEvent = async () => {
       label: newEventName,
       startDate: newEventStartDate,
       endDate: newEventEndDate,
-    });
+    },navigate);
     if (newEvent) {
       setEvents((prev) => [...prev, newEvent]);
       setRefresh(!refresh);
