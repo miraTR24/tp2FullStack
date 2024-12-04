@@ -6,7 +6,7 @@ import { createTheme } from "@mui/material/styles";
 import { useMemo } from "react";
 import { useSelector } from "react-redux";
 import { themeSettings } from "./theme";
-
+import PageNotFound from "./pages/PageNotFound/PageNotFound";
 import Layout from "./layouts/layout1";
 import EventDetails from "./pages/Accueil/EventDetails";
 import Accueil from "./pages/Accueil";
@@ -27,6 +27,7 @@ function App() {
         <ThemeProvider theme={theme}>
           <CssBaseline />
           <Routes>
+          <Route path="/*" element={<PageNotFound />} />
           <Route element={<Layout />}>
             <Route path="/" element={<Accueil />} />
             <Route path="/Artistes" element={<Artists />} />

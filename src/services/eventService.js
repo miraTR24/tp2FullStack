@@ -38,7 +38,7 @@ const getEvents = async (page = 0, size = 10) => {
   }
 };
 
-const getEventById = async (id) => {
+const getEventById = async (id, navigate) => {
   try {
     const BASE_URL = process.env.REACT_APP_BACKEND_URL || "http://localhost:8080";
     const apiUrl = `${BASE_URL}/events/${id}`;
@@ -51,10 +51,13 @@ const getEventById = async (id) => {
     });
 
     if (!response.ok) {
+      if (response.status === 404 && navigate) {
+        navigate("/*"); // Redirection vers PageNotFound
+        return null;
+      }
       const errorText = await response.text();
       throw new Error(`HTTP error! Status: ${response.status} - ${errorText}`);
     }
-
 
     const data = await response.json();
 
@@ -66,7 +69,7 @@ const getEventById = async (id) => {
       nombreArtistes: data.artists?.length || 0,
       artistes: data.artists?.map((artist) => ({
         id: artist.id || null,
-        label: artist.label || "Label indisponible"
+        label: artist.label || "Label indisponible",
       })) || [],
     };
   } catch (error) {
@@ -206,7 +209,31 @@ const addArtistToEvent = async (eventId, artistId) => {
   }
 };
 
+const addEvent = async (artist) => {
+  try {
+    const BASE_URL = process.env.REACT_APP_BACKEND_URL || "http://localhost:8080";
+    const apiUrl = `${BASE_URL}/events`;
+    console.log("data=> ",artist);
+    const response = await fetch(apiUrl, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(artist),
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(`HTTP error! Status: ${response.status} - ${errorText}`);
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error("Erreur lors de l'ajout d'un events :", error.message);
+    throw error;
+  }
+};
 
 
 
-export default { getEvents, getEventById ,updateEvent,removeArtistFromEvent,getAllArtists,addArtistToEvent};
+
+
+export default { getEvents, getEventById ,updateEvent,removeArtistFromEvent,getAllArtists,addArtistToEvent,addEvent};
