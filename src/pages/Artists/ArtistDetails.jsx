@@ -111,9 +111,31 @@ const ArtistDetails = () => {
     }
   };
 
+  const handleDeleteArtist = async () => {
+    if (window.confirm("Êtes-vous sûr de vouloir supprimer cet artiste ?")) {
+      try {
+        await artistService.deleteArtist(id); // Suppression de l'événement
+        alert("Artiste supprimé avec succès !");
+        navigate("/Artistes"); // Redirige vers la liste des événements
+      } catch (error) {
+        alert("Une erreur est survenue lors de la suppression de l'artiste.");
+      }
+    }
+  };
+
   return (
     <Box m="1.5rem 2.5rem">
       <Typography variant="h4">Détails de l'Artiste</Typography>
+      <Box mt="2rem" sx={{ display: "flex", justifyContent: "flex-end" }}>
+      <Button
+        variant="contained"
+        color="error"
+        startIcon={<Delete />}
+        onClick={handleDeleteArtist}
+      >
+        Supprimer l'Artiste
+      </Button>
+    </Box>
 
       {/* Formulaire avec Formik */}
       <Formik
