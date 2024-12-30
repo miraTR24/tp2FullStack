@@ -38,7 +38,10 @@ const Artists = ({
         borderRadius: "0.75rem",
         boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)",
         overflow: "hidden",
+        cursor: "pointer",
       }}
+      onClick={goToDetails} 
+
     >
       <CardContent>
         <Typography

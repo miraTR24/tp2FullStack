@@ -44,7 +44,9 @@ const Events = ({
         borderRadius: "0.75rem",
         boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)",
         overflow: "hidden",
+        cursor: "pointer",
       }}
+      onClick={goToDetails} 
     >
       <CardContent>
         <Typography
@@ -89,7 +91,10 @@ const Events = ({
           variant="contained"
           size="small"
           color="primary"
-          onClick={() => setIsExpanded(!isExpanded)}
+          onClick={(e) => {
+            e.stopPropagation(); // Empêche le clic sur la carte de se propager
+            setIsExpanded(!isExpanded);
+          }}
           sx={{
             textTransform: "none",
             fontSize: 14,
@@ -99,6 +104,7 @@ const Events = ({
         >
           {isExpanded ? "Voir Moins" : "Voir Plus"}
         </Button>
+
         <ArrowForwardIosIcon
           sx={{
             cursor: "pointer",
@@ -359,6 +365,15 @@ const handleCloseDialog = () => {
         >
           Suivant
         </Button>
+      </Box>
+
+      <Box 
+          sx={{
+            mt:"50px",
+            alignItems: "center",
+            textAlign:"center"
+          }}> 
+        <p>Développé avec ❤️ par <span>Ines</span> et <span>Amira</span></p>
       </Box>
     </Box>
   );
