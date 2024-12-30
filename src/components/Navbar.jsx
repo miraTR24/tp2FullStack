@@ -51,7 +51,10 @@ const Navbar = () => {
   const renderDrawerContent = (
     <List>
       <ListItem  onClick={() => navigate("/Artistes")} sx={{cursor: 'pointer'}}>
-        <ListItemText primary="Artistes" />
+        <ListItemText primary="Liste événement artistes" />
+      </ListItem>
+      <ListItem  onClick={() => navigate("/")} sx={{cursor: 'pointer'}}>
+        <ListItemText primary="Liste événements" />
       </ListItem>
     </List>
   );
@@ -85,13 +88,24 @@ const Navbar = () => {
         <FlexBetween gap="1.5rem">
                   {/*les différents liens*/ }
                   <Box textAlign="left"   sx={{ display: { xs: "none", md: "block" },}}>
-          <Link to="/Artistes" style={{ textDecoration: 'none' }}>
+                <Link to="/Artistes" style={{ textDecoration: 'none' }}>
                 <Typography
                   fontWeight="bold"
                   fontSize="0.85rem"
                   sx={{ color: "white" }}
                 >
-               Voir liste artistes
+               Liste artistes
+                </Typography>
+                </Link>
+              </Box>
+              <Box textAlign="left"   sx={{ display: { xs: "none", md: "block" },}}>
+                <Link to="/" style={{ textDecoration: 'none' }}>
+                <Typography
+                  fontWeight="bold"
+                  fontSize="0.85rem"
+                  sx={{ color: "white" }}
+                >
+               Liste événements
                 </Typography>
                 </Link>
               </Box>

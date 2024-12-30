@@ -58,7 +58,7 @@ const getEventById = async (id, navigate) => {
     });
 
     if (!response.ok) {
-      if (response.status === 404 && navigate) {
+      if (response.status !== 200 && navigate) {
         navigate("/*"); // Redirection vers PageNotFound
         return null;
       }

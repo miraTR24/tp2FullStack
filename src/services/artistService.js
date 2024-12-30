@@ -81,7 +81,7 @@ const getArtistById = async (id,navigate) => {
     const response = await fetch(apiUrl, { method: "GET", headers: { "Content-Type": "application/json" } });
 
     if (!response.ok) {
-      if (response.status === 404 && navigate) {
+      if (response.status !== 200 && navigate) {
         navigate("/*"); // Redirection vers PageNotFound
         return null;
       }
