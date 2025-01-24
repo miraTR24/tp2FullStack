@@ -15,5 +15,4 @@ Installe toutes les dépendances nécessaires au projet.
 Lance l'application en mode développement.  
 Ouvrez [http://localhost:4200](http://localhost:4200) pour la voir dans votre navigateur.
 
-La page se rechargera automatiquement lorsque vous apporterez des modifications.  
-Vous pourrez également voir les éventuelles erreurs de lint dans la console.
+
